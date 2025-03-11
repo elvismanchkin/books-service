@@ -3,11 +3,13 @@ package com.example.config;
 import com.rabbitmq.client.Channel;
 import io.micronaut.rabbitmq.connect.ChannelInitializer;
 import jakarta.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+@Slf4j
 @Singleton
 public class RabbitMQConfig extends ChannelInitializer {
 

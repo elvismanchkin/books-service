@@ -5,12 +5,10 @@ import io.micronaut.aop.MethodInvocationContext;
 import io.micronaut.context.annotation.Type;
 import io.micronaut.messaging.annotation.MessageMapping;
 import io.micronaut.rabbitmq.annotation.RabbitClient;
-import io.micronaut.rabbitmq.intercept.MutableBasicProperties;
 import io.micronaut.rabbitmq.intercept.RabbitMQIntroductionAdvice;
 import jakarta.inject.Singleton;
 import org.slf4j.MDC;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,21 +29,15 @@ public class MDCMessageInterceptor implements MethodInterceptor<Object, Object> 
             String correlationId = Optional.ofNullable(MDC.get("correlationId"))
                     .orElse(UUID.randomUUID().toString());
 
-            // Add a hook to include MDC values in message headers
-            context.setAttribute(
-                    RabbitMQIntroductionAdvice.PROPERTY_MAPPER,
-                    (MutableBasicProperties properties) -> {
-                        Map<String, Object> headers = properties.getHeaders();
-                        headers.put("X-Correlation-Id", correlationId);
+            // Create a custom attribute for our headers
+            context.setAttribute("mdc.headers", true);
+            context.setAttribute("mdc.correlationId", correlationId);
+            context.setAttribute("mdc.requestId", MDC.get("requestId"));
+            context.setAttribute("mdc.userId", MDC.get("userId"));
+            context.setAttribute("mdc.sessionId", MDC.get("sessionId"));
 
-                        // Add other MDC values that should be propagated
-                        Optional.ofNullable(MDC.get("requestId")).ifPresent(v -> headers.put("X-Request-Id", v));
-                        Optional.ofNullable(MDC.get("userId")).ifPresent(v -> headers.put("X-User-Id", v));
-                        Optional.ofNullable(MDC.get("sessionId")).ifPresent(v -> headers.put("X-Session-Id", v));
-
-                        return properties;
-                    }
-            );
+            // You'll need to create a custom RabbitMQ client factory that reads these attributes
+            // and applies them to the message headers
         }
 
         return delegate.intercept(context);
