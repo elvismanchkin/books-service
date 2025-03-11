@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Basic properties with defaults -->
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} [%thread] %-5level %logger{36} - %msg%n"/>
+    <property name="LOG_PATH" value="${LOG_PATH:-./logs}"/>
+    <property name="APP_NAME" value="reactive-books-service"/>
+
+    <!-- Environment variable configuration with defaults -->
+    <!--    <variable name="LOG_APPENDER" value="${APPLICATION_LOG_APPENDER:-CONSOLE}"/>-->
+    <!--    <property name="LOG_APPENDER" value="${APPLICATION_LOG_APPENDER:-CONSOLE}"/>-->
+    <!--    <variable scope="context" name="LOG_APPENDER" value="${APPLICATION_LOG_APPENDER:-CONSOLE}"/>-->
+    <variable name="LOG_APPENDER" value="${APPLICATION_LOG_APPENDER:-STDOUT}"/>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%boldWhite(%d{HH:mm:ss.SSS})] %boldGreen([%-5level]) [%cyan(%logger{10}) %magenta(%file:%line)]
+                %highlight(%n%msg%n)
+            </pattern>
+        </encoder>
+    </appender>
+    <!-- Console Appender with MDC and Tracing -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} [%thread] %-5level %logger{36} - traceId:%X{traceId},
+                spanId:%X{spanId} - %mdc - %msg%n
+            </pattern>
+            <!--            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>-->
+        </encoder>
+    </appender>
+
+    <!-- JSON Console Appender with MDC -->
+    <appender name="JSON_STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeMdcKeyName>*</includeMdcKeyName>
+            <timeZone>UTC</timeZone>
+            <customFields>{"app":"${APP_NAME}"}</customFields>
+        </encoder>
+    </appender>
+
+    <!-- File Appender with MDC -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeMdcKeyName>*</includeMdcKeyName>
+            <timeZone>UTC</timeZone>
+            <customFields>{"app":"${APP_NAME}"}</customFields>
+        </encoder>
+    </appender>
+    <!-- Suppress Logback internal logging -->
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+
+    <!-- Set logging levels -->
+    <logger name="ch.qos.logback" level="OFF"/>
+    <logger name="io.r2dbc" level="WARN"/>
+    <logger name="io.micronaut.data.r2dbc" level="WARN"/>
+    <logger name="org.jooq" level="WARN"/>
+
+    <!-- Root Logger with variable-based appender -->
+    <root level="INFO">
+        <appender-ref ref="${LOG_APPENDER}"/>
+        <!-- Uncomment if you want to always log to file as well -->
+        <!-- <appender-ref ref="FILE"/> -->
+    </root>
+</configuration>

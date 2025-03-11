@@ -1,0 +1,45 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 1000
+    spike_limit_mib: 200
+  resource:
+    attributes:
+      - key: environment
+        value: development
+        action: upsert
+
+exporters:
+  prometheus:
+    endpoint: "0.0.0.0:9464"
+    namespace: otel
+    send_timestamps: true
+    metric_expiration: 180m
+    resource_to_telemetry_conversion:
+      enabled: true
+  otlp:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+  logging:
+    loglevel: debug
+
+service:
+  pipelines:
+    traces:
+      receivers: [ otlp ]
+      processors: [ memory_limiter, batch, resource ]
+      exporters: [ otlp, logging ]
+    metrics:
+      receivers: [ otlp ]
+      processors: [ memory_limiter, batch, resource ]
+      exporters: [ prometheus, logging ]

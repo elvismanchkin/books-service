@@ -1,0 +1,82 @@
+micronaut:
+  application:
+    name: reactive-books-service
+  server:
+    port: 8080
+    netty:
+      access-logger:
+        enabled: true
+    context-path: /api
+  router:
+    static-resources:
+      swagger:
+        paths: classpath:META-INF/swagger
+        mapping: /swagger/**
+      swagger-ui:
+        paths: classpath:META-INF/swagger/views/swagger-ui
+        mapping: /swagger-ui/**
+  metrics:
+    enabled: true
+    export:
+      prometheus:
+        enabled: true
+        step: PT1M
+        descriptions: true
+  tracing:
+    enabled: true
+    opentelemetry:
+      endpoints:
+        collector: 'http://otel-collector:4317'
+      exporter:
+        type: otlp
+
+# Database configuration
+r2dbc:
+  datasources:
+    default:
+      dialect: POSTGRES
+      url: r2dbc:postgresql://localhost:5432/books
+      username: svc_books
+      password: passw0rd
+      options:
+        protocol: postgres
+        application_name: ${micronaut.application.name}
+      schema-generate: CREATE_DROP
+      schema-generator: POSTGRES
+      driver: postgresql
+      pool:
+        initial-size: 5
+        max-size: 20
+        max-idle-time: PT30M
+
+# RabbitMQ configuration
+rabbitmq:
+  uri: amqp://books:books@localhost:5672/books
+  health:
+    enabled: true
+
+# Endpoints for health probes
+endpoints:
+  health:
+    enabled: true
+    sensitive: false
+    details-visible: ANONYMOUS
+  prometheus:
+    enabled: true
+    sensitive: false
+
+# Logging configuration
+logger:
+  levels:
+    ch.qos.logback.classic: WARN
+    ch.qos.logback.core: WARN
+    root: INFO
+    io.micronaut: INFO
+    com.example: DEBUG
+    io.r2dbc: INFO
+
+# Enable context propagation
+context-propagation:
+  enabled: true
+  reactor:
+    enabled: true

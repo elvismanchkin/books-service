@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: books
+      POSTGRES_PASSWORD: passw0rd
+      POSTGRES_DB: books
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U books" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - books-network
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: books
+      RABBITMQ_DEFAULT_PASS: books
+      RABBITMQ_DEFAULT_VHOST: books
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - books-network
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.92.0
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ./config/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "9464:9464"   # Prometheus exporter
+    networks:
+      - books-network
+    depends_on:
+      - jaeger
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.49
+    environment:
+      COLLECTOR_OTLP_ENABLED: true
+    ports:
+      - "16686:16686"  # UI
+      - "14250:14250"  # Model
+      - "4317"         # OTLP gRPC
+    networks:
+      - books-network
+
+  prometheus:
+    image: prom/prometheus:v2.47.2
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.console.libraries=/usr/share/prometheus/console_libraries
+      - --web.console.templates=/usr/share/prometheus/consoles
+    ports:
+      - "9090:9090"
+    networks:
+      - books-network
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "3000:3000"
+    networks:
+      - books-network
+    depends_on:
+      - prometheus
+
+volumes:
+  postgres-data:
+  rabbitmq-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  books-network:
+    driver: bridge

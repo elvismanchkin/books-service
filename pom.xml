@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>reactive-books-service</artifactId>
+    <version>0.1.0</version>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>io.micronaut.platform</groupId>
+        <artifactId>micronaut-parent</artifactId>
+        <version>4.7.0</version>
+    </parent>
+
+    <properties>
+        <packaging>jar</packaging>
+        <jdk.version>21</jdk.version>
+        <release.version>21</release.version>
+        <micronaut.version>4.7.0</micronaut.version>
+        <micronaut.test.resources.enabled>false</micronaut.test.resources.enabled>
+        <exec.mainClass>com.example.Application</exec.mainClass>
+        <micronaut.runtime>netty</micronaut.runtime>
+        <!--        <zalando.problem.version>0.29.1</zalando.problem.version>-->
+        <!--        <micronaut.openapi.version>6.0.0</micronaut.openapi.version>-->
+        <!--        <micronaut.serialization.version>2.3.5</micronaut.serialization.version>-->
+        <micronaut.aot.enabled>false</micronaut.aot.enabled>
+        <!--        <micronaut.validation.version>4.2.0</micronaut.validation.version>-->
+        <!--        <micronaut.data.version>4.6.1</micronaut.data.version>-->
+        <logstash.logback.encoder.version>7.4</logstash.logback.encoder.version>
+        <!--        <micrometer.version>1.12.0</micrometer.version>-->
+        <!--        <micronaut.micrometer.version>5.1.0</micronaut.micrometer.version>-->
+        <!--        <micronaut.tracing.version>6.0.0</micronaut.tracing.version>-->
+        <!--        <lombok.version>1.18.30</lombok.version>-->
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+    </properties>
+
+    <dependencies>
+        <!-- Lombok and MapStruct -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
+
+        <!-- Micronaut Core -->
+        <dependency>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-inject</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-http-server-netty</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-jackson-databind</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut.validation</groupId>
+            <artifactId>micronaut-validation</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut.serde</groupId>
+            <artifactId>micronaut-serde-jackson</artifactId>
+        </dependency>
+
+        <!-- Reactive -->
+        <dependency>
+            <groupId>io.micronaut.reactor</groupId>
+            <artifactId>micronaut-reactor</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut.reactor</groupId>
+            <artifactId>micronaut-reactor-http-client</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- R2DBC -->
+        <dependency>
+            <groupId>io.micronaut.data</groupId>
+            <artifactId>micronaut-data-r2dbc</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.micronaut.r2dbc</groupId>
+            <artifactId>micronaut-r2dbc-core</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>r2dbc-postgresql</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>io.r2dbc</groupId>-->
+        <!--            <artifactId>r2dbc-postgresql</artifactId>-->
+        <!--            <scope>compile</scope>-->
+        <!--        </dependency>-->
+        <dependency>
+            <groupId>io.r2dbc</groupId>
+            <artifactId>r2dbc-pool</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Swagger-->
+        <dependency>
+            <groupId>io.micronaut.openapi</groupId>
+            <artifactId>micronaut-openapi-annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- RabbitMQ -->
+        <dependency>
+            <groupId>io.micronaut.rabbitmq</groupId>
+            <artifactId>micronaut-rabbitmq</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- MDC Context Propagation -->
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core-micrometer</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>context-propagation</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Zalando Problem -->
+        <dependency>
+            <groupId>org.zalando</groupId>
+            <artifactId>problem</artifactId>
+            <version>${zalando.problem.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.zalando</groupId>
+            <artifactId>jackson-datatype-problem</artifactId>
+            <version>${zalando.problem.version}</version>
+        </dependency>
+
+        <!-- Logging -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>${logstash.logback.encoder.version}</version>
+        </dependency>
+                <dependency>
+                    <groupId>org.codehaus.janino</groupId>
+                    <artifactId>janino</artifactId>
+                    <version>3.1.12</version>
+                </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Metrics and Tracing -->
+        <dependency>
+            <groupId>io.micronaut.micrometer</groupId>
+            <artifactId>micronaut-micrometer-core</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut.micrometer</groupId>
+            <artifactId>micronaut-micrometer-registry-prometheus</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut.tracing</groupId>
+            <artifactId>micronaut-tracing-opentelemetry-http</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-logging</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut.tracing</groupId>
+            <artifactId>micronaut-tracing-opentelemetry</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-otlp</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>io.micronaut.test</groupId>
+            <artifactId>micronaut-test-junit5</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-http-client</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-management</artifactId>
+        </dependency>
+        <!--        <dependency>-->
+        <!--            <artifactId>micronaut-test-re</artifactId>-->
+        <!--            <groupId>io.micronaut.test</groupId>-->
+        <!--            <artifactId>micronaut-test-resources</artifactId>-->
+        <!--            -->
+        <!--            <scope>test</scope>-->
+        <!--        </dependency>-->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.micronaut.build</groupId>
+                <artifactId>micronaut-maven-plugin</artifactId>
+                <configuration>
+                    <testResourcesDependencies>
+                        <dependency>
+                            <groupId>io.micronaut.testresources</groupId>
+                            <artifactId>micronaut-test-resources-r2dbc-postgresql</artifactId>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.postgresql</groupId>
+                            <artifactId>postgresql</artifactId>
+                        </dependency>
+                    </testResourcesDependencies>
+                    <configFile>aot-${packaging}.properties</configFile>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+            </plugin>
+            <!--            <plugin>-->
+            <!--                <groupId>org.apache.maven.plugins</groupId>-->
+            <!--                <artifactId>maven-compiler-plugin</artifactId>-->
+            <!--                <configuration>-->
+            <!--                    <compilerArgs>-->
+            <!--                        <arg>-parameters</arg>-->
+            <!--                    </compilerArgs>-->
+            <!--                    <annotationProcessorPaths combine.self="override">-->
+            <!--                        <path>-->
+            <!--                            <groupId>io.micronaut</groupId>-->
+            <!--                            <artifactId>micronaut-inject-java</artifactId>-->
+            <!--                            <version>${micronaut.version}</version>-->
+            <!--                        </path>-->
+            <!--                        <path>-->
+            <!--                            <groupId>io.micronaut.validation</groupId>-->
+            <!--                            <artifactId>micronaut-validation-processor</artifactId>-->
+            <!--                            <version>${micronaut.validation.version}</version>-->
+            <!--                        </path>-->
+            <!--                        <path>-->
+            <!--                            <groupId>io.micronaut.serde</groupId>-->
+            <!--                            <artifactId>micronaut-serde-processor</artifactId>-->
+            <!--                            <version>${micronaut.serialization.version}</version>-->
+            <!--                        </path>-->
+            <!--                        <path>-->
+            <!--                            <groupId>io.micronaut.data</groupId>-->
+            <!--                            <artifactId>micronaut-data-processor</artifactId>-->
+            <!--                            <version>${micronaut.data.version}</version>-->
+            <!--                        </path>-->
+            <!--                        <path>-->
+            <!--                            <groupId>io.micronaut.openapi</groupId>-->
+            <!--                            <artifactId>micronaut-openapi</artifactId>-->
+            <!--                            <version>${micronaut.openapi.version}</version>-->
+            <!--                        </path>-->
+            <!--                        <path>-->
+            <!--                            <groupId>org.projectlombok</groupId>-->
+            <!--                            <artifactId>lombok</artifactId>-->
+            <!--                            <version>${lombok.version}</version>-->
+            <!--                        </path>-->
+            <!--                        <path>-->
+            <!--                            <groupId>org.mapstruct</groupId>-->
+            <!--                            <artifactId>mapstruct-processor</artifactId>-->
+            <!--                            <version>${mapstruct.version}</version>-->
+            <!--                        </path>-->
+            <!--                        <path>-->
+            <!--                            <groupId>org.projectlombok</groupId>-->
+            <!--                            <artifactId>lombok-mapstruct-binding</artifactId>-->
+            <!--                            <version>${lombok-mapstruct-binding.version}</version>-->
+            <!--                        </path>-->
+            <!--                    </annotationProcessorPaths>-->
+            <!--                </configuration>-->
+            <!--            </plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
+                        </path>
+                        <path>
+                            <groupId>io.micronaut.data</groupId>
+                            <artifactId>micronaut-data-processor</artifactId>
+                            <version>${micronaut.data.version}</version>
+                        </path>
+                        <path>
+                            <groupId>io.micronaut</groupId>
+                            <artifactId>micronaut-inject-java</artifactId>
+                            <version>${micronaut.core.version}</version>
+                        </path>
+                        <path>
+                            <groupId>io.micronaut</groupId>
+                            <artifactId>micronaut-graal</artifactId>
+                            <version>${micronaut.core.version}</version>
+                        </path>
+                        <!--                        <path>-->
+                        <!--                            <groupId>io.micronaut</groupId>-->
+                        <!--                            <artifactId>micronaut-openapi</artifactId>-->
+                        <!--                            <version>${micronaut.openapi.version}</version> </path>-->
+                        <path>
+                            <groupId>io.micronaut.micrometer</groupId>
+                            <artifactId>micronaut-micrometer-annotation</artifactId>
+                            <version>${micronaut.micrometer.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>-Amicronaut.processing.group=com.example</arg>
+                        <arg>-Amicronaut.processing.module=reactive-books-service</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
