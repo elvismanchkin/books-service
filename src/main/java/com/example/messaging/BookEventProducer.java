@@ -1,6 +1,5 @@
 package com.example.messaging;
 
-import com.example.dto.BookDTO;
 import com.example.event.BookEvent;
 import io.micronaut.rabbitmq.annotation.Binding;
 import io.micronaut.rabbitmq.annotation.RabbitClient;

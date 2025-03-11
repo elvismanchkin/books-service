@@ -10,6 +10,7 @@ import com.example.service.BookService;
 import io.micronaut.context.annotation.Primary;
 import io.micronaut.tracing.annotation.NewSpan;
 import jakarta.inject.Singleton;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -18,16 +19,12 @@ import java.util.UUID;
 
 @Slf4j
 @Singleton
+@RequiredArgsConstructor
 @Primary
 public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
-
-    public BookServiceImpl(BookRepository bookRepository, BookMapper bookMapper) {
-        this.bookRepository = bookRepository;
-        this.bookMapper = bookMapper;
-    }
 
     @NewSpan("findAllBooks")
     @Override
@@ -101,7 +98,7 @@ public class BookServiceImpl implements BookService {
                         return Mono.error(new BusinessException("ISBN cannot be changed"));
                     }
 
-                    return bookRepository.update(existingBook);
+                    return bookRepository.save(existingBook);
                 })
                 .map(bookMapper::toDto);
     }

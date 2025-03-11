@@ -5,9 +5,8 @@ import io.micronaut.http.MutableHttpResponse;
 import io.micronaut.http.annotation.Filter;
 import io.micronaut.http.filter.HttpServerFilter;
 import io.micronaut.http.filter.ServerFilterChain;
+import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -16,10 +15,9 @@ import reactor.util.context.Context;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Filter("/**")
 public class RequestContextFilter implements HttpServerFilter {
-
-    private static final Logger LOG = LoggerFactory.getLogger(RequestContextFilter.class);
 
     @Override
     public Publisher<MutableHttpResponse<?>> doFilter(HttpRequest<?> request, ServerFilterChain chain) {
@@ -47,7 +45,7 @@ public class RequestContextFilter implements HttpServerFilter {
         }
 
         // Log the incoming request
-        LOG.info("Received request: {} {}", request.getMethod(), request.getPath());
+        log.info("Received request: {} {}", request.getMethod(), request.getPath());
 
         // Create context for reactive chain
         Context context = Context.empty()
@@ -78,7 +76,7 @@ public class RequestContextFilter implements HttpServerFilter {
                         response.header("X-Correlation-ID", correlationId);
                     });
         } catch (Exception e) {
-            LOG.error("Error in request filter", e);
+            log.error("Error in request filter", e);
             return Mono.error(e);
         }
     }

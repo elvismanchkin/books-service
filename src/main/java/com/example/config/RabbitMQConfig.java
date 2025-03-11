@@ -15,7 +15,7 @@ public class RabbitMQConfig extends ChannelInitializer {
 
     @Override
     public void initialize(Channel channel, String name) throws IOException {
-        LOG.info("Initializing RabbitMQ channel");
+        log.info("Initializing RabbitMQ channel");
 
         // Declare exchanges
         channel.exchangeDeclare("book-events", "topic", true);
@@ -30,6 +30,6 @@ public class RabbitMQConfig extends ChannelInitializer {
         channel.queueBind("book-updated", "book-events", "book.updated");
         channel.queueBind("book-deleted", "book-events", "book.deleted");
 
-        LOG.info("RabbitMQ channel initialized successfully");
+        log.info("RabbitMQ channel initialized successfully");
     }
 }

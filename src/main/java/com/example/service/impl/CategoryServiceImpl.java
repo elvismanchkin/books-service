@@ -10,31 +10,26 @@ import com.example.service.CategoryService;
 import io.micronaut.context.annotation.Primary;
 import io.micronaut.tracing.annotation.NewSpan;
 import jakarta.inject.Singleton;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
+@RequiredArgsConstructor
+@Slf4j
 @Singleton
 @Primary
 public class CategoryServiceImpl implements CategoryService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CategoryServiceImpl.class);
-
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
-
-    public CategoryServiceImpl(CategoryRepository categoryRepository, CategoryMapper categoryMapper) {
-        this.categoryRepository = categoryRepository;
-        this.categoryMapper = categoryMapper;
-    }
 
     @Override
     @NewSpan("findAllCategories")
     public Flux<CategoryDTO> findAll() {
-        LOG.debug("Finding all categories");
+        log.debug("Finding all categories");
         return categoryRepository.findAll()
                 .map(categoryMapper::toDto);
     }
@@ -42,7 +37,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @NewSpan("findCategoryById")
     public Mono<CategoryDTO> findById(UUID id) {
-        LOG.debug("Finding category by id: {}", id);
+        log.debug("Finding category by id: {}", id);
         return categoryRepository.findById(id)
                 .switchIfEmpty(Mono.error(new CategoryNotFoundException("Category with id " + id + " not found")))
                 .map(categoryMapper::toDto);
@@ -51,7 +46,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @NewSpan("findCategoryByName")
     public Mono<CategoryDTO> findByName(String name) {
-        LOG.debug("Finding category by name: {}", name);
+        log.debug("Finding category by name: {}", name);
         return categoryRepository.findByNameIgnoreCase(name)
                 .switchIfEmpty(Mono.error(new CategoryNotFoundException("Category with name " + name + " not found")))
                 .map(categoryMapper::toDto);
@@ -60,7 +55,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @NewSpan("saveCategory")
     public Mono<CategoryDTO> save(CategoryDTO categoryDTO) {
-        LOG.debug("Saving new category: {}", categoryDTO.getName());
+        log.debug("Saving new category: {}", categoryDTO.getName());
 
         return categoryRepository.findByNameIgnoreCase(categoryDTO.getName())
                 .flatMap(existingCategory -> Mono.<Category>error(
@@ -75,7 +70,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @NewSpan("updateCategory")
     public Mono<CategoryDTO> update(UUID id, CategoryDTO categoryDTO) {
-        LOG.debug("Updating category with id: {}", id);
+        log.debug("Updating category with id: {}", id);
 
         return categoryRepository.findById(id)
                 .switchIfEmpty(Mono.error(new CategoryNotFoundException("Category with id " + id + " not found")))
@@ -88,11 +83,11 @@ public class CategoryServiceImpl implements CategoryService {
                                 .switchIfEmpty(Mono.defer(() -> {
                                     existingCategory.setName(categoryDTO.getName());
                                     existingCategory.setDescription(categoryDTO.getDescription());
-                                    return categoryRepository.update(existingCategory);
+                                    return categoryRepository.save(existingCategory);
                                 }));
                     } else {
                         existingCategory.setDescription(categoryDTO.getDescription());
-                        return categoryRepository.update(existingCategory);
+                        return categoryRepository.save(existingCategory);
                     }
                 })
                 .map(categoryMapper::toDto);
@@ -101,9 +96,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @NewSpan("deleteCategory")
     public Mono<Void> delete(UUID id) {
-        LOG.debug("Deleting category with id: {}", id);
+        log.debug("Deleting category with id: {}", id);
         return categoryRepository.findById(id)
                 .switchIfEmpty(Mono.error(new CategoryNotFoundException("Category with id " + id + " not found")))
-                .flatMap(categoryRepository::delete);
+                .flatMap(categoryRepository::delete).then();
     }
 }

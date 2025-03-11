@@ -5,22 +5,20 @@ import io.micronaut.messaging.annotation.MessageHeader;
 import io.micronaut.rabbitmq.annotation.Queue;
 import io.micronaut.rabbitmq.annotation.RabbitListener;
 import io.micronaut.tracing.annotation.NewSpan;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 
+@Slf4j
 @RabbitListener
 public class BookEventConsumer {
-
-    private static final Logger LOG = LoggerFactory.getLogger(BookEventConsumer.class);
 
     @NewSpan("consumeBookCreated")
     @Queue("book-created")
     public void receiveBookCreated(BookEvent event, @MessageHeader("X-Correlation-Id") String correlationId) {
         try {
             MDC.put("correlationId", correlationId);
-            LOG.info("Received book created event: {}", event.getEventId());
-            LOG.debug("Book created: {}", event.getBook().getTitle());
+            log.info("Received book created event: {}", event.getEventId());
+            log.debug("Book created: {}", event.getBook().getTitle());
             // Process the event
         } finally {
             MDC.remove("correlationId");
@@ -32,8 +30,8 @@ public class BookEventConsumer {
     public void receiveBookUpdated(BookEvent event, @MessageHeader("X-Correlation-Id") String correlationId) {
         try {
             MDC.put("correlationId", correlationId);
-            LOG.info("Received book updated event: {}", event.getEventId());
-            LOG.debug("Book updated: {}", event.getBook().getTitle());
+            log.info("Received book updated event: {}", event.getEventId());
+            log.debug("Book updated: {}", event.getBook().getTitle());
             // Process the event
         } finally {
             MDC.remove("correlationId");
@@ -45,8 +43,8 @@ public class BookEventConsumer {
     public void receiveBookDeleted(BookEvent event, @MessageHeader("X-Correlation-Id") String correlationId) {
         try {
             MDC.put("correlationId", correlationId);
-            LOG.info("Received book deleted event: {}", event.getEventId());
-            LOG.debug("Book deleted with ID: {}", event.getBook().getId());
+            log.info("Received book deleted event: {}", event.getEventId());
+            log.debug("Book deleted with ID: {}", event.getBook().getId());
             // Process the event
         } finally {
             MDC.remove("correlationId");

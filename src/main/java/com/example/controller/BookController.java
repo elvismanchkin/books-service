@@ -5,7 +5,14 @@ import com.example.event.BookEvent;
 import com.example.messaging.BookEventProducer;
 import com.example.service.BookService;
 import io.micronaut.http.HttpResponse;
-import io.micronaut.http.annotation.*;
+import io.micronaut.http.annotation.Body;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Delete;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.Put;
+import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.tracing.annotation.NewSpan;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,34 +22,29 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
+@Slf4j
+@RequiredArgsConstructor
 @Controller("/books")
 @Validated
 @Tag(name = "Books", description = "Book management endpoints")
 public class BookController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BookController.class);
-
     private final BookService bookService;
     private final BookEventProducer bookEventProducer;
-
-    public BookController(BookService bookService, BookEventProducer bookEventProducer) {
-        this.bookService = bookService;
-        this.bookEventProducer = bookEventProducer;
-    }
 
     @Get
     @NewSpan("getAllBooks")
     @Operation(summary = "Get all books", description = "Retrieves all books in the system")
     @ApiResponse(responseCode = "200", description = "List of books retrieved successfully")
     public Flux<BookDTO> getAllBooks() {
-        LOG.info("Request to get all books");
+        log.info("Request to get all books");
         return bookService.findAll();
     }
 
@@ -52,7 +54,7 @@ public class BookController {
     @ApiResponse(responseCode = "200", description = "Book retrieved successfully")
     @ApiResponse(responseCode = "404", description = "Book not found")
     public Mono<BookDTO> getBookById(@PathVariable UUID id) {
-        LOG.info("Request to get book by ID: {}", id);
+        log.info("Request to get book by ID: {}", id);
         return bookService.findById(id);
     }
 
@@ -62,7 +64,7 @@ public class BookController {
     @ApiResponse(responseCode = "200", description = "Book retrieved successfully")
     @ApiResponse(responseCode = "404", description = "Book not found")
     public Mono<BookDTO> getBookByIsbn(@PathVariable String isbn) {
-        LOG.info("Request to get book by ISBN: {}", isbn);
+        log.info("Request to get book by ISBN: {}", isbn);
         return bookService.findByIsbn(isbn);
     }
 
@@ -71,10 +73,10 @@ public class BookController {
     @Operation(summary = "Search books", description = "Search books by title or author")
     @ApiResponse(responseCode = "200", description = "Search results retrieved successfully")
     public Flux<BookDTO> searchBooks(
-            @Parameter(description = "Title to search for") @QueryValue(value = "title", defaultValue = "") String title,
-            @Parameter(description = "Author to search for") @QueryValue(value = "author", defaultValue = "") String author) {
+            @Parameter(description = "Title to search for") @QueryValue(value = "title") String title,
+            @Parameter(description = "Author to search for") @QueryValue(value = "author") String author) {
 
-        LOG.info("Request to search books with title: '{}', author: '{}'", title, author);
+        log.info("Request to search books with title: '{}', author: '{}'", title, author);
 
         if (!title.isEmpty()) {
             return bookService.findByTitle(title);
@@ -95,7 +97,7 @@ public class BookController {
             content = @Content(schema = @Schema(implementation = org.zalando.problem.Problem.class))
     )
     public Mono<HttpResponse<BookDTO>> createBook(@Valid @Body BookDTO bookDTO) {
-        LOG.info("Request to create new book: {}", bookDTO.getTitle());
+        log.info("Request to create new book: {}", bookDTO.getTitle());
 
         return bookService.save(bookDTO)
                 .map(savedBook -> {
@@ -116,7 +118,7 @@ public class BookController {
             content = @Content(schema = @Schema(implementation = org.zalando.problem.Problem.class))
     )
     public Mono<BookDTO> updateBook(@PathVariable UUID id, @Valid @Body BookDTO bookDTO) {
-        LOG.info("Request to update book with ID: {}", id);
+        log.info("Request to update book with ID: {}", id);
 
         return bookService.update(id, bookDTO)
                 .doOnSuccess(updatedBook ->
@@ -130,7 +132,7 @@ public class BookController {
     @ApiResponse(responseCode = "204", description = "Book deleted successfully")
     @ApiResponse(responseCode = "404", description = "Book not found")
     public Mono<HttpResponse<?>> deleteBook(@PathVariable UUID id) {
-        LOG.info("Request to delete book with ID: {}", id);
+        log.info("Request to delete book with ID: {}", id);
 
         return bookService.findById(id)
                 .flatMap(book -> {

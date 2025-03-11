@@ -5,8 +5,8 @@ import io.micronaut.aop.MethodInvocationContext;
 import io.micronaut.context.annotation.Type;
 import io.micronaut.messaging.annotation.MessageMapping;
 import io.micronaut.rabbitmq.annotation.RabbitClient;
-import io.micronaut.rabbitmq.intercept.RabbitMQIntroductionAdvice;
 import io.micronaut.rabbitmq.intercept.MutableBasicProperties;
+import io.micronaut.rabbitmq.intercept.RabbitMQIntroductionAdvice;
 import jakarta.inject.Singleton;
 import org.slf4j.MDC;
 

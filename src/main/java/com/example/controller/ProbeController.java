@@ -6,21 +6,19 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.tracing.annotation.NewSpan;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Controller("/probes")
 @Tag(name = "Health Probes", description = "Kubernetes health probes")
 public class ProbeController {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ProbeController.class);
 
     @Get("/liveness")
     @NewSpan("livenessProbe")
     @Operation(summary = "Liveness probe", description = "Checks if the application is running")
     public Mono<HttpResponse<String>> liveness() {
-        LOG.debug("Liveness probe check");
+        log.debug("Liveness probe check");
         return Mono.just(HttpResponse.ok("Alive"));
     }
 
@@ -28,7 +26,7 @@ public class ProbeController {
     @NewSpan("readinessProbe")
     @Operation(summary = "Readiness probe", description = "Checks if the application is ready to receive traffic")
     public Mono<HttpResponse<String>> readiness() {
-        LOG.debug("Readiness probe check");
+        log.debug("Readiness probe check");
         return Mono.just(HttpResponse.ok("Ready"));
     }
 }

@@ -8,24 +8,22 @@ import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.server.exceptions.ExceptionHandler;
 import jakarta.inject.Singleton;
 import jakarta.validation.ConstraintViolationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import org.zalando.problem.ThrowableProblem;
 
 import java.net.URI;
 
+@Slf4j
 @Singleton
 @Requires(classes = {Throwable.class, ExceptionHandler.class})
 public class GlobalExceptionHandler implements ExceptionHandler<Throwable, HttpResponse<?>> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-
     @Override
     @Produces("application/problem+json")
     public HttpResponse<?> handle(HttpRequest request, Throwable exception) {
-        LOG.error("Exception caught by global exception handler", exception);
+        log.error("Exception caught by global exception handler", exception);
 
         if (exception instanceof BookNotFoundException || exception instanceof CategoryNotFoundException) {
             return HttpResponse.status(HttpStatus.NOT_FOUND)
